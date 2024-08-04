@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather</title>
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <div class="continer">
+      <% if (locals.category) { %>
+      <video autoplay muted loop class="background-video">
+        <source src="<%= category %>.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
+      <%} %>
+
+      <div class="content">
+        <div class="search">
+            <form action="/weather" method="POST">
+              <label for="location"></label>
+              <input type="text" id="location" name="location" placeholder="🔎 Search" required />
+              <p type="submit" ></p>
+            </form>
+          </div>
+          
+
+
+        <% if (locals.data) { %>
+
+        <!-- rain/sun/cloudy -->
+
+        <div class="mainInfo">
+
+          <h2>
+            <%= data.location.name %></h2> 
+
+            <h2> <%= data.current.condition.text %></h2>
+            
+            <span style=" font-size: 1em;" >  <h1><%= data.current.temp_c %>°</h1> </span>
+          <p>
+            H <%= data.forecast.forecastday[0].day.maxtemp_c %> L <%=
+            data.forecast.forecastday[0].day.mintemp_c %>
+          </p>
+        </div>
+
+        <div class="hourlyDiv">
+        <div class="hourly">
+          <!-- <%= data.alerts %> -->
+
+          <% data.forecast.forecastday[0].hour.forEach(element => { const time =
+          element.time.split(' ')[1]; // Extracting the time part %>
+          <div class="hourly-item">
+            <%= time %>
+
+            <img
+              src="<%= element.condition.icon %>"
+              alt="Weather Icon"
+              style="width: 32px; height: 32px"
+            />
+            <%= element.temp_c %>°
+          </div>
+          <% }); %>
+        </div>
+    </div>
+
+
+        <% function getDayName(dateString) { const daysOfWeek = ["Sun",
+        "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"];
+        const date = new Date(dateString); return daysOfWeek[date.getDay()]; }
+        %>
+
+        <div class="forecastDiv">
+        <div class="forecast">
+          <% if (data.forecast && data.forecast.forecastday) {
+          data.forecast.forecastday.forEach(forecastDay => { const day =
+          getDayName(forecastDay.date); %>
+          <div class="daily-item">
+            <%= day %>
+            <div class="fore">
+            <img
+              src="<%= forecastDay.day.condition.icon %>"
+              alt="Weather Icon"
+              style="width: 32px; height: 32px"
+            />
+
+            <% if (forecastDay.day.daily_chance_of_rain > 50) { %>
+    <span style="color: rgba(28, 113, 182, 0.862); font-size: 0.8em;">
+        <%= forecastDay.day.daily_chance_of_rain %>%
+    </span>
+<% } %>
+
+           
+
+        </div>
+            L <%=
+            forecastDay.day.mintemp_c %>° 
+            
+            
+            
+            H <%= forecastDay.day.maxtemp_c %>°
+        
+          </div>
+          <% }); } else { %>
+          <p>No forecast data available.</p>
+          <% } %>
+        </div>
+    </div>
+
+
+<div class="AqiSunriseSunset">
+        <div class="aqi">
+          pm2.5 <%=data.current.air_quality.pm2_5 %> 
+          <br>
+          
+          pm10 <%=data.current.air_quality.pm10 %>
+        </div>
+
+        <div class="sunrise-sunset">
+          Sunrise: <%= data.forecast.forecastday[0].astro.sunrise %> Sunset: <%=
+          data.forecast.forecastday[0].astro.sunset %>
+        </div>
+</div>
+
+<div class="SpeedUV">
+        <div class="speed-dir-gust">
+          Speed,Dir,Gust: <%= data.current.wind_kph %> <%= data.current.wind_dir
+          %> <%= data.current.gust_kph %>
+        </div>
+
+        <div class="uv-feelslike">
+          UV, Feels Like: <%= data.current.uv %> <%= data.current.feelslike_c %>
+        </div>
+</div>
+        <% } %>
+      </div>
+    </div>
+
+  </body>
+</html>
